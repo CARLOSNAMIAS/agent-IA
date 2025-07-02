@@ -1,0 +1,27 @@
+{
+  "name": "chat-bot-backend",
+  "version": "1.0.0",
+  "description": "Backend server for the AI assistant",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "chatbot",
+    "ai",
+    "backend"
+  ],
+  "author": "Carlos & Gemini",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^4.19.2",
+    "node-fetch": "^2.7.0",
+    "openai": "^5.8.2"
+  },
+  "devDependencies": {
+    "@ljharb/tsconfig": "^0.3.2"
+  }
+}

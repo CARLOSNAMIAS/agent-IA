@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente/IA</title>
+    <link rel="icon" href="./img/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <meta name="theme-color" content="#111833">
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Agente IA</h1>
+            <div class="status">
+                <span class="status-dot"></span>
+                En línea
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message" id="welcomeMessage">
+                ¡Hola! Soy tu asistente de IA. ¿En qué puedo ayudarte hoy?<br>
+                <small>Escribe o habla para interactuar</small>
+            </div>
+        </div>
+
+        <div class="suggestion-chips" id="suggestionChips">
+            <div class="suggestion-chip">¿Cómo puedes ayudarme?</div>
+            <div class="suggestion-chip">Explícame algo</div>
+            <div class="suggestion-chip">Resuelve un problema</div>
+            <div class="suggestion-chip">Genera contenido</div>
+        </div>
+
+        <div class="chat-input">
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Escribe tu mensaje o usa el micrófono..."
+                    maxlength="500">
+                <button id="voiceBtn" class="voice-btn" type="button" title="Reconocimiento de voz">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                    <div class="voice-status" id="voiceStatus">Escuchando...</div>
+                </button>
+
+                <button id="sendBtn" type="button" title="Enviar mensaje">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="agent.js"></script>
+
+</body>
+
+</html>
