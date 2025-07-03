@@ -17,6 +17,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 // --- Middlewares ---
 app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // --- Inicialización del Modelo Gemini ---
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
@@ -291,6 +292,10 @@ app.post('/chat', async (req, res) => {
 });
 
 // --- Iniciar el Servidor ---
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor del chatbot (con Gemini y Wikipedia) escuchando en http://localhost:${PORT}`);
 });
