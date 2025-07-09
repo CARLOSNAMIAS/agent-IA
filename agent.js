@@ -1,3 +1,11 @@
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { firebaseConfig } from './firebase-config.js'; // Import your Firebase config
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 class AIBot {
     constructor() {
         this.messagesContainer = document.getElementById('chatMessages');
@@ -7,6 +15,7 @@ class AIBot {
         this.voiceStatus = document.getElementById('voiceStatus');
         this.welcomeMessageContainer = document.getElementById('welcomeMessage');
         this.suggestionChipsContainer = document.getElementById('suggestionChips');
+        this.logoutBtn = document.getElementById('logoutBtn'); // New: Logout button
 
         this.chatHistory = []; // Initialize chat history
 
@@ -37,6 +46,9 @@ class AIBot {
         this.displaySuggestionChips();
         this.sendBtn.addEventListener('click', () => this.sendMessage());
         this.voiceBtn.addEventListener('click', () => this.toggleVoiceRecognition());
+        if (this.logoutBtn) { // New: Add event listener for logout button
+            this.logoutBtn.addEventListener('click', () => this.logout());
+        }
 
         this.messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.sendMessage();
@@ -96,7 +108,6 @@ class AIBot {
 
         this.showTypingIndicator();
 
-        // La única tarea es llamar al backend
         this.chatHistory.push({ role: 'user', parts: [{ text: message }] });
         console.log('Historial de chat antes de enviar:', this.chatHistory);
         const { response, history } = await this.getBotResponseFromServer(message);
@@ -104,22 +115,38 @@ class AIBot {
         console.log('Historial de chat después de recibir:', this.chatHistory);
 
         this.hideTypingIndicator();
-        this.addMessage(response, 'bot');
+        this.addMessage(response, 'bot', wasVoiceMessage);
         if (wasVoiceMessage) {
             this.speak(response);
         }
     }
 
-    // ¡NUEVA FUNCIÓN! Habla con nuestro servidor
     async getBotResponseFromServer(message) {
         try {
+            const user = auth.currentUser;
+            if (!user) {
+                console.error('No authenticated user found. Redirecting to login.');
+                window.location.href = 'login.html';
+                return { response: "Error de autenticación. Por favor, inicia sesión de nuevo.", history: this.chatHistory };
+            }
+
+            const idToken = await user.getIdToken(true); // Get fresh ID token
+
             const response = await fetch('http://localhost:3000/chat', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}` // Include ID token
                 },
                 body: JSON.stringify({ message, history: this.chatHistory })
             });
+
+            if (response.status === 401 || response.status === 403) {
+                console.error('Authentication error from server. Redirecting to login.');
+                await signOut(auth); // Sign out the user
+                window.location.href = 'login.html';
+                return { response: "Tu sesión ha expirado o no estás autorizado. Por favor, inicia sesión de nuevo.", history: this.chatHistory };
+            }
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -135,16 +162,16 @@ class AIBot {
         }
     }
 
-    addMessage(data, sender) {
+    addMessage(data, sender, isVoiceResponse = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'message-bubble';
 
-        let messageText = data;
-
-        // Comprobar si la respuesta es un objeto con una propiedad 'result' (de Deezer)
-        if (sender === 'bot' && typeof data === 'object' && data.result && data.result.title) {
+        if (sender === 'bot' && isVoiceResponse) {
+            bubbleDiv.innerHTML = `<img src="img/voice-waveform.gif" alt="Respuesta de voz" class="voice-waveform">`;
+            bubbleDiv.classList.add('voice-response');
+        } else if (sender === 'bot' && typeof data === 'object' && data.result && data.result.title) {
             const song = data.result;
             bubbleDiv.innerHTML = `
                 <div class="song-card">
@@ -156,17 +183,13 @@ class AIBot {
                     </div>
                 </div>
             `;
-            messageText = `Canción: ${song.title} de ${song.artist}`; // Para el historial
         } else {
-            // Si no, es texto plano
             bubbleDiv.innerHTML = data;
         }
 
         messageDiv.appendChild(bubbleDiv);
         this.messagesContainer.appendChild(messageDiv);
         this.scrollToBottom();
-
-        
     }
 
     showTypingIndicator() {
@@ -185,6 +208,17 @@ class AIBot {
 
     scrollToBottom() {
         this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+
+    // New: Logout function
+    async logout() {
+        try {
+            await signOut(auth);
+            window.location.href = 'login.html'; // Redirect to login page after logout
+        } catch (error) {
+            console.error('Error during logout:', error);
+            alert('Error al cerrar sesión. Por favor, inténtalo de nuevo.');
+        }
     }
 
     // --- Funciones de Voz (sin cambios) ---
@@ -207,6 +241,15 @@ class AIBot {
     loadVoices() { this.voices = this.synth.getVoices().filter(voice => voice.lang.startsWith('es')); if (this.voices.length === 0) { console.warn("No se encontraron voces en español para la síntesis de voz."); } }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    new AIBot();
+// Authentication state listener
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is signed in, proceed with the app
+        console.log('User is signed in:', user.uid);
+        new AIBot(); // Initialize AIBot directly
+    } else {
+        // User is signed out, redirect to login page
+        console.log('User is signed out. Redirecting to login.html');
+        window.location.href = 'login.html';
+    }
 });

@@ -20,27 +20,27 @@
 
 :root {
     /* Colores principales */
-    --primary-color: #1a73e8;
-    --primary-hover: #1557b0;
-    --secondary-color: #5f6368;
+    --primary-color: #4285F4; /* Google Blue - Keep vibrant for primary actions */
+    --primary-hover: #3367D6; /* Darker Google Blue */
+    --secondary-color: #80868B; /* Slightly lighter neutral for better visibility on very dark */
     
     /* Colores de fondo */
-    --background-color: #f8f9fa;
-    --surface-color: #ffffff;
-    --surface-hover: #dddddd;
+    --background-color: #0A0A0A; /* Even darker background */
+    --surface-color: #1C1C1C; /* Even darker surface */
+    --surface-hover: #2A2A2A; /* Slightly lighter hover for very dark surface */
     
     /* Colores de texto */
-    --text-primary: #202124;
-    --text-secondary: #5f6368;
+    --text-primary: #F0F0F0; /* Very light text for very dark background */
+    --text-secondary: #B0B0B0; /* Lighter secondary text for very dark background */
     
     /* Bordes y sombras */
-    --border-color: #e8eaed;
-    --shadow: 0 1px 3px rgba(60, 64, 67, 0.08), 0 4px 8px rgba(60, 64, 67, 0.04);
-    --shadow-hover: 0 2px 8px rgba(60, 64, 67, 0.12), 0 8px 24px rgba(60, 64, 67, 0.08);
+    --border-color: #333333; /* Darker border */
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1); /* Adjusted for dark theme */
+    --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2); /* Adjusted for dark theme */
     
     /* Gradientes */
-    --gradient-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --ai-gradient: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+    --gradient-bg: linear-gradient(135deg, #1C1C1C 0%, #2A2A2A 100%); /* Adjusted for dark theme */
+    --ai-gradient: linear-gradient(135deg, #4285F4, #9B27B0, #0F9D58, #F4B400); /* Keep vibrant Google colors for AI */
     
     /* Radios de bordes */
     --message-radius: 18px;
@@ -199,7 +199,7 @@ body {
 /* Avatar del usuario */
 .message.user .message-avatar {
     background: var(--primary-color);
-    color: white;
+    color: rgb(94, 94, 94);
 }
 
 /* Avatar de la IA con gradiente animado */
@@ -210,27 +210,60 @@ body {
     animation: gradientShift 8s ease-in-out infinite;
 }
 
-/* Contenido del mensaje */
-.message-content {
-    background: var(--surface-hover);
-    padding: 12px 16px;
+/* Contenido del mensaje (Burbuja) */
+.message .message-bubble {
+    padding: 12px 18px;
     border-radius: var(--message-radius);
     position: relative;
     word-wrap: break-word;
-    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message .message-bubble:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
 }
 
 /* Estilo específico para mensajes del usuario */
-.message.user .message-content {
-    background: var(--primary-color);
-    color: white;
-    border: none;
+.message.user .message-bubble {
+    background: #1A1A1A;
+    color: var(--text-primary); /* Use the defined text primary color */
+    border-radius: 20px 20px 4px 20px; /* Esquina inferior izquierda afilada */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for dark theme */
 }
 
 /* Estilo específico para mensajes de la IA */
-.message.ai .message-content {
-    background: var(--surface-color);
-    box-shadow: var(--shadow);
+.message.bot .message-bubble {
+    background: #252525;
+    color: var(--text-primary); /* Use the defined text primary color */
+    border: 1px solid #333333; /* A subtle border to define it */
+    border-radius: 20px 20px 20px 4px; /* Esquina inferior derecha afilada */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow for dark theme */
+}
+
+/* Anulación para respuestas de voz */
+.message.bot .message-bubble.voice-response {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Se asegura que el texto dentro de las tarjetas de Deezer no sea blanco */
+.message.user .message-bubble .song-info {
+    color: var(--text-primary);
+}
+
+/* Estilo para la onda de voz */
+.voice-waveform {
+    max-width: 90px; /* Ajusta el tamaño según tu GIF */
+    height: auto;
+    display: block;
+    margin: 0 auto; /* Centra el GIF en la burbuja */
+
+}
+
+.message.bot .message-bubble {
+    padding: 5px; /* Ajusta el padding para que el GIF se vea bien */
 }
 
 /* ==========================================================================
@@ -355,6 +388,27 @@ body {
     background: var(--border-color);
     cursor: not-allowed;
     transform: none;
+}
+
+/* New Logout Button Styles */
+.logout-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    margin-left: 16px; /* Adjust spacing */
+}
+
+.logout-btn:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
 }
 
 /* ==========================================================================
@@ -523,7 +577,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --background-color: #0d1117;
+        --background-color: #120d17;
         --surface-color: #161b22;
         --surface-hover: #21262d;
         --text-primary: #f0f6fc;
